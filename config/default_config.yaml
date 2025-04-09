@@ -1,0 +1,87 @@
+# Default configuration for Code Context Retriever
+
+# General settings
+auto_load_index: true
+index_name: "default"
+
+# Logging configuration
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    standard:
+      format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: INFO
+      formatter: standard
+      stream: ext://sys.stdout
+    file:
+      class: logging.FileHandler
+      level: DEBUG
+      formatter: standard
+      filename: code_context_retriever.log
+      mode: a
+  loggers:
+    "":  # root logger
+      handlers: [console, file]
+      level: INFO
+      propagate: true
+    code_context_retriever:
+      handlers: [console, file]
+      level: INFO
+      propagate: false
+
+# Extractor settings
+extractors:
+  max_file_size: 1048576  # 1MB
+  PythonExtractor:
+    include_comments: true
+  TypeScriptExtractor:
+    include_comments: true
+  MarkdownExtractor:
+    split_by_headings: true
+
+# Embedder settings
+embedder:
+  model: "sentence-transformers/all-MiniLM-L6-v2"  # Default local model
+  # Alternative API models (requires DSPy and provider config):
+  # model: "openai/text-embedding-3-small"
+  # model: "cohere/embed-multilingual-v3.0"
+  cache_dir: ".cache/embeddings"
+  use_cache: true
+  batch_size: 32
+  max_workers: 4
+
+# Vector index settings
+vector_index:
+  index_dir: ".cache/vector_index"
+  use_faiss: true
+  metric: "cosine"  # "cosine" or "l2"
+
+# Retriever settings
+retriever:
+  top_k: 75
+  format_template: |
+    File: {file} | Type: {type} | Name: {name}
+    Score: {score:.4f}
+    {separator}
+    {full_text}
+    {separator}
+  separator: "----------------------------------------"
+
+# Indexing settings
+indexing:
+  max_workers: 4
+  exclude_dirs: [".git", "node_modules", "__pycache__", "venv", ".env", ".venv"]
+  exclude_files: ["*.pyc", "*.pyo", "*.pyd", "*.so", "*.dll", "*.class"]
+  
+# API settings
+api:
+  enable_authentication: false
+  api_key: ""  # Set this for basic API key authentication
+  rate_limit: 60  # Requests per minute
+  timeout: 30  # Request timeout in seconds
+  cors_origins: ["*"]  # CORS origins, use ["*"] to allow all origins
+  max_request_size: 1048576  # 1MB
