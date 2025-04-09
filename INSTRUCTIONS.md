@@ -40,11 +40,17 @@ code-context-retriever index src/specific/module
 
 ### 3. Querying
 ```bash
-# Basic query (returns top 5 matches)
+# Basic query (returns top matches using default settings)
 code-context-retriever query "How is authentication implemented?"
 
 # With custom result count
 code-context-retriever query "Error handling" --top-k 3
+
+# With similarity score threshold
+code-context-retriever query "auth system" --threshold 0.7
+
+# Combining options
+code-context-retriever query "login flow" --threshold 0.6 --top-k 10
 
 # Project-specific query  
 code-context-retriever query "Database schema" --project OTHER_PROJECT
@@ -60,8 +66,11 @@ retriever = CodeContextRetriever()  # Uses local model
 
 2. **Basic Usage**:
 ```python
-# Get relevant code snippets
+# Get relevant code snippets (uses default threshold of 0.35)
 contexts = retriever.query("How is error handling implemented?")
+
+# Custom threshold for higher precision
+contexts = retriever.query("authentication system", threshold=0.7)
 
 # Use in your agent's reasoning
 for ctx in contexts[:3]:  # Top 3 results
@@ -76,6 +85,9 @@ for ctx in contexts[:3]:  # Top 3 results
 embedder:
   model: "sentence-transformers/all-MiniLM-L6-v2"  # or API model
   cache_dir: ".cache/agent_embeddings"
+retriever:
+  top_k: 10
+  threshold: 0.5  # Minimum similarity score (0.0 to 1.0)
 ```
 
 ### Batch Processing
@@ -92,4 +104,9 @@ results = [retriever.query(q) for q in queries]
 - Always set project first
 - Re-index after major code changes
 - Use specific natural language queries
+- Adjust similarity threshold based on needs:
+  - Higher threshold (0.7+) for high-precision results
+  - Lower threshold (0.3-0.5) for broader coverage
+  - Default (0.35) is a good balance for most use cases
+- Set threshold to 0 to disable filtering entirely
 - Combine with `jq` for JSON output processing

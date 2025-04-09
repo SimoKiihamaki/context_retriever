@@ -67,8 +67,11 @@ code-context-retriever index /path/to/your/codebase
 # Query the current project
 code-context-retriever query "How is authentication implemented?"
 
-# Or specify a different project
+# Specify a different project
 code-context-retriever query "How is authentication implemented?" --project another-project
+
+# Filter results by similarity threshold
+code-context-retriever query "auth system" --threshold 0.7
 ```
 
 ### Start the API Server
@@ -89,6 +92,8 @@ embedder:
   model: "sentence-transformers/all-MiniLM-L6-v2"  # Local model
   cache_dir: ".cache/embeddings"
   use_cache: true
+retriever:
+  threshold: 0.5  # Custom similarity threshold (0.0 to 1.0)
 ```
 
 **API-based alternative**:
@@ -98,7 +103,13 @@ embedder:
   model: "openai/text-embedding-3-small"  # Requires DSPy and API key
 retriever:
   top_k: 10
+  threshold: 0.6  # Higher threshold for more precise results
 ```
+
+**Configuration Options Explained**:
+- `embedder.model`: Embedding model to use (local or API-based)
+- `retriever.top_k`: Maximum number of results to return (default: 75)
+- `retriever.threshold`: Minimum similarity score (0.0 to 1.0) for results (default: 0.35). This improves result quality by filtering out low-relevance matches. Set to 0 to disable filtering.
 
 Then use it:
 

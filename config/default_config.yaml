@@ -63,6 +63,7 @@ vector_index:
 # Retriever settings
 retriever:
   top_k: 75
+  threshold: 0.35  # Default similarity score threshold
   format_template: |
     File: {file} | Type: {type} | Name: {name}
     Score: {score:.4f}

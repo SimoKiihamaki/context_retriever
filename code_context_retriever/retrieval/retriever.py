@@ -275,12 +275,13 @@ class CodeContextRetriever:
             self.config.get('retriever', {})
         )
     
-    def query(self, query: str) -> List[str]:
+    def query(self, query: str, threshold: Optional[float] = None) -> List[str]:
         """
         Query the indexed codebase.
         
         Args:
             query: Query string
+            threshold: Minimum similarity score threshold (0.0 to 1.0)
             
         Returns:
             List of relevant context snippets
@@ -288,8 +289,33 @@ class CodeContextRetriever:
         if not self.retriever:
             raise ValueError("Retriever not initialized. Index a codebase first or load an existing index.")
         
-        result = self.retriever(code_query=query)
-        return result['context']
+        # Get raw results for potential filtering
+        raw_results = self.raw_query(query)
+        
+        # Apply threshold filter if specified or use default from config
+        if threshold is None:
+            threshold = self.config.get('retriever', {}).get('threshold')
+        
+        filtered_results = []
+        if threshold is not None:
+            filtered_results = [res for res in raw_results if res.get('score', 0) >= threshold]
+        else:
+            filtered_results = raw_results
+        
+        # Format results as strings
+        result_strings = []
+        for res in filtered_results:
+            snippet = self.retriever.format_template.format(
+                file=res.get('file', 'N/A'),
+                type=res.get('type', 'N/A'),
+                name=res.get('name', 'N/A'),
+                score=res.get('score', 0.0),
+                full_text=res.get('full_text', ''),
+                separator=self.retriever.separator
+            )
+            result_strings.append(snippet)
+        
+        return result_strings
         
     def raw_query(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:
         """

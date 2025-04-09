@@ -47,6 +47,7 @@ def main():
     # Query command
     query_parser = subparsers.add_parser('query', help='Query the indexed codebase')
     query_parser.add_argument('query', help='Query string')
+    query_parser.add_argument('--threshold', '-t', type=float, help='Minimum similarity score threshold (0.0 to 1.0)')
     query_parser.add_argument('--config', '-c', help='Path to configuration file')
     query_parser.add_argument('--index', '-i', help='Name of the index to load')
     query_parser.add_argument('--project', '-p', help='Project name (uses current project if not specified)')
@@ -204,7 +205,7 @@ def main():
                 )
                 
             # Perform query
-            results = retriever.query(args.query)
+            results = retriever.query(args.query, threshold=args.threshold)
             print(f"Results for query: {args.query}\n")
             for i, result in enumerate(results, 1):
                 print(f"Result {i}:\n{result}\n")
