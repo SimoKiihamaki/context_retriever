@@ -40,7 +40,7 @@ code-context-retriever index src/specific/module
 
 ### 3. Querying
 ```bash
-# Basic query (returns top matches using default settings)
+# Basic query (saves results to context.txt)
 code-context-retriever query "How is authentication implemented?"
 
 # With custom result count
@@ -49,12 +49,20 @@ code-context-retriever query "Error handling" --top-k 3
 # With similarity score threshold
 code-context-retriever query "auth system" --threshold 0.7
 
+# Specify custom output file
+code-context-retriever query "login flow" --output login_results.txt
+
+# Display results in terminal (in addition to saving to file)
+code-context-retriever query "user validation" --terminal
+
 # Combining options
-code-context-retriever query "login flow" --threshold 0.6 --top-k 10
+code-context-retriever query "login flow" --threshold 0.6 --top-k 10 --output login_results.txt
 
 # Project-specific query  
 code-context-retriever query "Database schema" --project OTHER_PROJECT
 ```
+
+By default, all query results are saved to a file named `context.txt` in the current directory, overwriting any existing content. Only a summary is printed to the terminal unless the `--terminal` flag is used.
 
 ## Quick Integration
 
@@ -71,6 +79,11 @@ contexts = retriever.query("How is error handling implemented?")
 
 # Custom threshold for higher precision
 contexts = retriever.query("authentication system", threshold=0.7)
+
+# Save results to a file programmatically
+with open("context.txt", "w") as f:
+    for i, ctx in enumerate(contexts, 1):
+        f.write(f"Result {i}:\n{ctx}\n\n")
 
 # Use in your agent's reasoning
 for ctx in contexts[:3]:  # Top 3 results
@@ -109,4 +122,8 @@ results = [retriever.query(q) for q in queries]
   - Lower threshold (0.3-0.5) for broader coverage
   - Default (0.35) is a good balance for most use cases
 - Set threshold to 0 to disable filtering entirely
+- Review saved context.txt file for complete results
+- Use custom output paths (--output) when working with multiple queries
+- Use the --terminal flag when you need to see results immediately
+- Process output files with other tools (grep, sed, awk) for further filtering
 - Combine with `jq` for JSON output processing

@@ -64,7 +64,7 @@ code-context-retriever index /path/to/your/codebase
 ### Query the Indexed Codebase
 
 ```bash
-# Query the current project
+# Query the current project (results saved to context.txt)
 code-context-retriever query "How is authentication implemented?"
 
 # Specify a different project
@@ -72,7 +72,15 @@ code-context-retriever query "How is authentication implemented?" --project anot
 
 # Filter results by similarity threshold
 code-context-retriever query "auth system" --threshold 0.7
+
+# Specify a custom output file
+code-context-retriever query "login flow" --output login_results.txt
+
+# Also display results in terminal (in addition to saving to file)
+code-context-retriever query "authentication" --terminal
 ```
+
+By default, query results are saved to a file named `context.txt` in the current directory, overwriting any existing content. A summary is printed to the terminal.
 
 ### Start the API Server
 

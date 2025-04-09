@@ -48,6 +48,8 @@ def main():
     query_parser = subparsers.add_parser('query', help='Query the indexed codebase')
     query_parser.add_argument('query', help='Query string')
     query_parser.add_argument('--threshold', '-t', type=float, help='Minimum similarity score threshold (0.0 to 1.0)')
+    query_parser.add_argument('--output', '-o', help='Output file path (default: context.txt)')
+    query_parser.add_argument('--terminal', '-T', action='store_true', help='Also print full results to terminal')
     query_parser.add_argument('--config', '-c', help='Path to configuration file')
     query_parser.add_argument('--index', '-i', help='Name of the index to load')
     query_parser.add_argument('--project', '-p', help='Project name (uses current project if not specified)')
@@ -206,9 +208,28 @@ def main():
                 
             # Perform query
             results = retriever.query(args.query, threshold=args.threshold)
-            print(f"Results for query: {args.query}\n")
+            
+            # Create a string with the formatted results
+            output_content = f"Results for query: {args.query}\n\n"
             for i, result in enumerate(results, 1):
-                print(f"Result {i}:\n{result}\n")
+                output_content += f"Result {i}:\n{result}\n\n"
+            
+            # Determine output file path
+            output_file = args.output if args.output else "context.txt"
+            
+            # Write to the output file (overwriting any existing content)
+            with open(output_file, "w") as file:
+                file.write(output_content)
+            
+            # Print a message to the terminal
+            print(f"Results for query: {args.query}")
+            print(f"Found {len(results)} results. Saved to {output_file}")
+            
+            # If --terminal flag is used, also print full results to terminal
+            if args.terminal:
+                print("\nFull results:")
+                for i, result in enumerate(results, 1):
+                    print(f"Result {i}:\n{result}\n")
                 
         elif args.command == 'api':
             # Determine config path
